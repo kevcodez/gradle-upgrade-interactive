@@ -4,9 +4,31 @@ const prompts = require('prompts');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
+let gradleCommand = ''
+try {
+  const isWindows = process.platform === 'win32'
+  const gradleWrapperFile = isWindows ? 'gradlew.bat' : 'gradlew'
+  if (fs.existsSync(gradleWrapperFile)) {
+    gradleCommand = (isWindows ? './' : '') + gradleWrapperFile
+  }
+} catch (err) {
+}
+
+if (!gradleCommand) {
+  const gradleVersion = spawnSync('gradle', ['--version'])
+  if (gradleVersion.status === 0) {
+    gradleCommand = 'gradle'
+  }
+}
+
+if (!gradleCommand) {
+  console.log('Unable to find Gradle Wrapper or Gradle CLI ')
+  return
+}
+
 console.log('Checking for upgrades')
 
-let gdu = spawnSync('gradle', ['dependencyUpdates', '-Drevision=release', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']);
+const gdu = spawnSync(gradleCommand, ['dependencyUpdates', '-Drevision=release', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']);
 
 if (gdu.status !== 0) {
   console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`)
@@ -25,7 +47,7 @@ if (gdu.status !== 0) {
   })
 
   if (!outdatedDependencies.length) {
-    console.info("Everything up to date.")
+    console.info('Everything up to date.')
     return
   }
 
@@ -41,7 +63,7 @@ if (gdu.status !== 0) {
     return
   }
 
-  fs.readFile("build.gradle", function (err, buf) {
+  fs.readFile('build.gradle', function (err, buf) {
     let buildFileAsString = buf.toString()
 
     response.upgrades.forEach(it => {
