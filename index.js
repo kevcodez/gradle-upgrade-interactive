@@ -4,7 +4,9 @@ const prompts = require('prompts');
 const fs = require('fs');
 const { spawnSync } = require('child_process');
 
-let gradleCommand = ''
+const ReplaceVersion = require('./ReplaceVersion')
+
+let gradleCommand = null
 let gradleWrapper = false
 try {
   const isWindows = process.platform === 'win32'
@@ -24,7 +26,7 @@ if (!gradleCommand) {
 }
 
 if (!gradleCommand) {
-  console.log('Unable to find Gradle Wrapper or Gradle CLI ')
+  console.log('Unable to find Gradle Wrapper or Gradle CLI.')
   return
 }
 
@@ -43,13 +45,14 @@ if (gdu.status !== 0) {
   const upgradeReport = fs.readFileSync('build/dependencyUpdates/report.json');
   let dependencyUpdates = JSON.parse(upgradeReport);
   let outdatedDependencies = dependencyUpdates.outdated.dependencies
-  let currentGradleRelease = dependencyUpdates.gradle.running.version
-  let latestGradleRelease = dependencyUpdates.gradle.current.version
-
+ 
   let choices = outdatedDependencies.map(it => {
     const newVersion = it.available.release
     return { description: `Group ${it.group}`, title: `${it.name} - ${it.version} => ${newVersion}`, value: { group: it.group, name: it.name, oldVersion: it.version, version: newVersion } }
   })
+
+  let currentGradleRelease = dependencyUpdates.gradle.running.version
+  let latestGradleRelease = dependencyUpdates.gradle.current.version
 
   if (gradleWrapper && currentGradleRelease !== latestGradleRelease) {
     choices.unshift({
@@ -91,34 +94,11 @@ if (gdu.status !== 0) {
     let buildFileAsString = buf.toString()
 
     response.upgrades.filter(it => it !== 'gradle').forEach(it => {
-      const oldVersion = it.oldVersion
-      const newVersion = it.version
-
-      const regexVersionVariable = new RegExp(it.group + "." + it.name + ":\\${?(\\w+)}?", "ig")
-
-      let versionWithVariableMatches = regexVersionVariable.exec(buildFileAsString)
-      if (versionWithVariableMatches && versionWithVariableMatches.length === 2) {
-        let variableName = versionWithVariableMatches[1]
-
-        const regexVariableDefinition = new RegExp(`${variableName}(\\s+)?=(\\s+)?('|")${oldVersion}('|")`, "ig")
-
-        if (regexVariableDefinition) {
-          buildFileAsString = buildFileAsString.replace(regexVariableDefinition, `${variableName} = '${newVersion}'`)
-        }
-      }
-
-      let regexVersionInline = new RegExp(it.group + "." + it.name + ":" + it.oldVersion, "g")
-      if (regexVersionInline.exec(buildFileAsString)) {
-        buildFileAsString = buildFileAsString.replace(regexVersionInline, it.group + "." + it.name + ":" + it.version)
-      }
-
-      let regexVersionWithPrefix = new RegExp(it.group + `"(\\s+)?version(\\s+)?"${oldVersion}"`)
-
-      buildFileAsString = buildFileAsString.replace(regexVersionWithPrefix, it.group + `" version "${newVersion}"`)
+      buildFileAsString = ReplaceVersion.replace(buildFileAsString, it)
     })
 
     fs.writeFile('build.gradle', buildFileAsString, 'utf8', function (err) {
-      if (err) return console.log(err);
+      if (err) return console.log("Unable to write gradle build file.\n" + err);
     });
 
   });
