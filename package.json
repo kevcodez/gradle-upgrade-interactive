@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
   "dependencies": {
     "prompt": "^1.0.0"
   },
   "bin": {
     "gradle-upgrade-interactive": "./index.js"
+  },
+  "devDependencies": {
+    "jest": "^24.9.0"
   }
 }

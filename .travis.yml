@@ -6,7 +6,7 @@ cache: yarn
 
 install: yarn
 script:
-  - yarn
+  - yarn test
 
 jobs:
   include:
