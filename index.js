@@ -6,10 +6,11 @@ const { spawnSync } = require('child_process');
 
 console.log('Checking for upgrades')
 
-let gdu = spawnSync('gradle', ['clean', 'dependencyUpdates', '-Drevision=release', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']);
+let gdu = spawnSync('gradle', ['dependencyUpdates', '-Drevision=release', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']);
 
 if (gdu.status !== 0) {
-  console.log('Error executing gradle dependency updates, have you installed the plugin?')
+  console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`)
+  console.log('https://github.com/ben-manes/gradle-versions-plugin')
   return
 }
 (async () => {
