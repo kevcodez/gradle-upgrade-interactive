@@ -1,3 +1,8 @@
 node_modules
 yarn-error.log
 .gradle
+build.gradle
+gradlew
+gradlew.bat
+build
+gradle
