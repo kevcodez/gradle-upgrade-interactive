@@ -20,12 +20,12 @@ plugins {
 Install the CLI
 
 ```
-npm i -g gradle-dependency-upgrade
+npm i -g gradle-upgrade-interactive
 ```
 
 ## Usage
 
-Simply run `gradle-dependency-upgrade`.
+Simply run `gradle-upgrade-interactive`.
 
 ## How it works
 
