@@ -7,15 +7,15 @@
     "test": "jest"
   },
   "dependencies": {
-    "prompt": "^1.0.0"
-  },
-  "bin": {
-    "gradle-upgrade-interactive": "./index.js"
+    "prompts": "^2.2.1"
   },
   "devDependencies": {
     "jest": "^24.9.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }
