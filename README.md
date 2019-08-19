@@ -1,8 +1,12 @@
 # Gradle Upgrade Interactive
 
-CLI to interactively upgrade gradle dependencies, inspired by yarn.
+[![Build Status](https://travis-ci.org/kevcodez/gradle-upgrade-interactive.svg?branch=master)](https://travis-ci.org/kevcodez/gradle-upgrade-interactive)
+
+CLI to interactively upgrade Gradle dependencies, inspired by yarn.
 
 [![asciicast](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb.svg)](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb)
+
+Easily upgrade your dependencies and Gradle itself by simply selecting what you want to upgrade.
 
 ## Requirements
 
@@ -23,7 +27,7 @@ plugins {
 
 Install the CLI
 
-```
+```sh
 npm i -g gradle-upgrade-interactive
 ```
 
@@ -33,5 +37,5 @@ Simply run `gradle-upgrade-interactive`.
 
 ## How it works
 
-The [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin) is called to generate a JSON report containg the outdate dependencies.
-The CLI will then prompt all outdated dependencies and the selected dependency upgrades will be written to the build.gradle file.
+The [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin) is called to generate a JSON report containg the outdated dependencies.
+The CLI will then prompt all outdated dependencies and the selected dependency upgrades will be written to the graGradledle build file.
