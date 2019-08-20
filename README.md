@@ -37,5 +37,5 @@ Simply run `gradle-upgrade-interactive`.
 
 ## How it works
 
-The [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin) is called to generate a JSON report containg the outdated dependencies.
-The CLI will then prompt all outdated dependencies and the selected dependency upgrades will be written to the graGradledle build file.
+The [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin) is called to generate a JSON report containing the outdated dependencies.
+The CLI will then prompt all outdated dependencies and the selected dependency upgrades will be written to the Gradle build file.
