@@ -59,3 +59,8 @@ test('Replace plugin version with double quotation marks', () => {
 
     expect(replacedVersion).toBe(`id 'com.github.ben-manes.versions' version "0.22.0"`)
 })
+test('Replace version with version prefix in dependency', () => {
+    const replacedVersion = ReplaceVersion.replace(`compile group: 'de.kevcodez.pubg', name: 'pubg-api-wrapper', version: '0.8.1'`, dependency)
+
+    expect(replacedVersion).toBe(`compile group: 'de.kevcodez.pubg', name: 'pubg-api-wrapper', version: '1.0.0'`)
+})
