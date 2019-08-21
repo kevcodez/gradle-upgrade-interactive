@@ -1,10 +1,11 @@
 # Gradle Upgrade Interactive
 
 [![Build Status](https://travis-ci.org/kevcodez/gradle-upgrade-interactive.svg?branch=master)](https://travis-ci.org/kevcodez/gradle-upgrade-interactive)
+[![NPM](https://img.shields.io/npm/v/gradle-upgrade-interactive)](https://travis-ci.org/kevcodez/gradle-upgrade-interactive)
 
 CLI to interactively upgrade Gradle dependencies, inspired by yarn.
 
-[![asciicast](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb.svg)](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb)
+[![asciicast](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb.svg)](https://www.npmjs.com/package/gradle-upgrade-interactive)
 
 Easily upgrade your dependencies and Gradle itself by simply selecting what you want to upgrade.
 
