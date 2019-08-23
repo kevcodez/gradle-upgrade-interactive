@@ -36,7 +36,14 @@ test('Replace version with variable with parenthensis and double quotation marks
 
     expect(replacedVersion).toContain(`myVar = "1.0.0"`)
 })
+test('Replace leave variable if it is already updated', () => {
+    const replacedVersion = ReplaceVersion.replace(`
+        myVar = "1.0.0"
+        compile 'de.kevcodez:pubg-api-wrapper:\$\{myVar\}'
+`, dependency)
 
+    expect(replacedVersion).toContain(`myVar = "1.0.0"`)
+})
 test('Replace plugin version with single quotation marks', () => {
     const pluginDependency = {
         group: 'com.github.ben-manes.versions',
