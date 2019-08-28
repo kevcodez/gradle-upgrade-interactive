@@ -16,7 +16,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "prompts": "^2.2.1"
+    "prompts": "^2.2.1",
+    "yargs": "^14.0.0"
   },
   "devDependencies": {
     "jest": "^24.9.0"

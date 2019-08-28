@@ -1,4 +1,12 @@
 #! /usr/bin/env node
+var argv = require('yargs')
+  .option('resolution', {
+    alias: 'r',
+    describe: 'Controls the dependency resolution strategy.\nSupported options:\n* release: selects the latest release\n* milestone: select the latest version being either a milestone or a release (default)\n* integration: selects the latest revision of the dependency module (such as SNAPSHOT)',
+    type: 'string',
+    nargs: 1,
+    demand: false
+  }).argv
 
 const prompts = require('prompts');
 const fs = require('fs');
@@ -32,7 +40,13 @@ if (!gradleCommand) {
 
 console.log('Checking for upgrades')
 
-const gdu = spawnSync(gradleCommand, ['dependencyUpdates', '-Drevision=release', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']);
+const gduArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
+const gduResolution = argv.resolution
+if (gduResolution) {
+  gduArgs.push(`-Drevision=${gduResolution}`)
+}
+
+const gdu = spawnSync(gradleCommand, gduArgs);
 
 if (gdu.status !== 0) {
   console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`)
@@ -45,9 +59,9 @@ if (gdu.status !== 0) {
   const upgradeReport = fs.readFileSync('build/dependencyUpdates/report.json');
   let dependencyUpdates = JSON.parse(upgradeReport);
   let outdatedDependencies = dependencyUpdates.outdated.dependencies
- 
+
   let choices = outdatedDependencies.map(it => {
-    const newVersion = it.available.release
+    const newVersion = it.available.release || it.available.milestone || it.available.integration
     return { description: `Group ${it.group}`, title: `${it.name} - ${it.version} => ${newVersion}`, value: { group: it.group, name: it.name, oldVersion: it.version, version: newVersion } }
   })
 

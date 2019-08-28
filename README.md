@@ -36,6 +36,19 @@ npm i -g gradle-upgrade-interactive
 
 Simply run `gradle-upgrade-interactive`.
 
+```
+Options:
+  --help            Show help                                          [boolean]
+  --version         Show version number                                [boolean]
+  --resolution, -r  Controls the dependency resolution strategy.
+                    Supported options:
+                    * release: selects the latest release
+                    * milestone: select the latest version being either a
+                    milestone or a release (default)
+                    * integration: selects the latest revision of the dependency
+                    module (such as SNAPSHOT)                           [string]
+```
+
 ## How it works
 
 The [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin) is called to generate a JSON report containing the outdated dependencies.
