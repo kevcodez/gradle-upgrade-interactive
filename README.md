@@ -5,7 +5,7 @@
 
 CLI to interactively upgrade Gradle dependencies, inspired by yarn.
 
-[![asciicast](https://asciinema.org/a/MSr9LppJKjb2gyCW0ozsdFWdb.svg)](https://www.npmjs.com/package/gradle-upgrade-interactive)
+![CLI](cli.gif)
 
 Easily upgrade your dependencies and Gradle itself by simply selecting what you want to upgrade.
 
