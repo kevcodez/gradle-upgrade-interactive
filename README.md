@@ -5,7 +5,7 @@
 
 CLI to interactively upgrade Gradle dependencies, inspired by yarn.
 
-![CLI](cli.gif)
+![](cli.gif)
 
 Easily upgrade your dependencies and Gradle itself by simply selecting what you want to upgrade.
 
