@@ -45,11 +45,11 @@ if (!gradleCommand) {
 }
 
 if (!gradleCommand) {
-  console.log('Unable to find Gradle Wrapper or Gradle CLI.'.red)
+  console.log('Unable to find Gradle Wrapper or Gradle CLI.'.bgRed)
   return
 }
 
-console.log('Checking for upgrades...')
+console.log('Checking for upgrades...\n')
 
 const gduArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
 const gduResolution = argv.resolution
@@ -60,15 +60,19 @@ if (gduResolution) {
 const gdu = spawnSync(gradleCommand, gduArgs);
 
 if (gdu.status !== 0) {
-  console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`.red)
-  console.log('https://github.com/ben-manes/gradle-versions-plugin\n')
-  console.log(`Plugins block`)
+  console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status})`.bgRed)
+
+  console.log(gdu.stderr.toString().red)
+
+  console.log(`\nIn case you haven't installed the gradle-versions-plugin (https://github.com/ben-manes/gradle-versions-plugin), put one of the following in your gradle build file:\n`)
+  
+  console.log(`Either Plugins block`)
   console.log(` 
   plugins {
     id "com.github.ben-manes.versions" version "0.24.0"
   }\n`.green)
 
-  console.log('buildscript block')
+  console.log('or buildscript block')
 
   console.log(`
   apply plugin: "com.github.ben-manes.versions"
@@ -130,7 +134,8 @@ if (gdu.status !== 0) {
     const upgradeGradleWrapper = spawnSync(gradleCommand, ['wrapper', '--gradle-version=' + latestGradleRelease]);
 
     if (upgradeGradleWrapper.status !== 0) {
-      console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`)
+      console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`.bgRed)
+      console.log(upgradeGradleWrapper.stderr.toString().red)
       return
     }
   }
@@ -143,7 +148,7 @@ if (gdu.status !== 0) {
     })
 
     fs.writeFile('build.gradle', buildFileAsString, 'utf8', function (err) {
-      if (err) return console.log(`Unable to write gradle build file.\n${err}`.red);
+      if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
     });
 
   });
