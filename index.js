@@ -9,8 +9,17 @@ var argv = require('yargs')
     nargs: 1,
     demand: false
   })
+  .option('debug', {
+    alias: 'd',
+    describe: 'Prints debugging information, such as commands executed and current status.',
+    type: 'boolean',
+    demand: false,
+    default: false
+  })
   .option('no-color', {
-    describe: 'Disables color output'
+    describe: 'Disables color output',
+    nargs: 1,
+    demand: false
   })
   .argv
 
@@ -51,11 +60,15 @@ if (!gradleCommand) {
 
 console.log('Checking for upgrades...\n')
 
+const debug = argv.debug
+
 const gduArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
 const gduResolution = argv.resolution
 if (gduResolution) {
   gduArgs.push(`-Drevision=${gduResolution}`)
 }
+
+debugLog(`Executing command\n${gradleCommand} ${gduArgs.join(' ')}\n`)
 
 const gdu = spawnSync(gradleCommand, gduArgs);
 
@@ -65,7 +78,7 @@ if (gdu.status !== 0) {
   console.log(gdu.stderr.toString().red)
 
   console.log(`\nIn case you haven't installed the gradle-versions-plugin (https://github.com/ben-manes/gradle-versions-plugin), put one of the following in your gradle build file:\n`)
-  
+
   console.log(`Either Plugins block`)
   console.log(` 
   plugins {
@@ -89,16 +102,27 @@ if (gdu.status !== 0) {
   return
 }
 
+function debugLog (message) {
+  if (debug) {
+    console.log(message.blue)
+  }
+}
+
 (async () => {
+
+  debugLog(`Reading JSON report file\n`)
 
   const upgradeReport = fs.readFileSync('build/dependencyUpdates/report.json');
   let dependencyUpdates = JSON.parse(upgradeReport);
   let outdatedDependencies = dependencyUpdates.outdated.dependencies
+  debugLog(`Outdated dependencies parsed\n${JSON.stringify(outdatedDependencies)}\n\n`)
 
   let choices = outdatedDependencies.map(it => {
     const newVersion = it.available.release || it.available.milestone || it.available.integration
     return { description: `Group ${it.group}`, title: `${it.name} - ${it.version} => ${newVersion}`, value: { group: it.group, name: it.name, oldVersion: it.version, version: newVersion } }
   })
+
+  debugLog(`Choices\n${JSON.stringify(choices)}\n\n`)
 
   let currentGradleRelease = dependencyUpdates.gradle.running.version
   let latestGradleRelease = dependencyUpdates.gradle.current.version
@@ -131,7 +155,9 @@ if (gdu.status !== 0) {
 
   if (response.upgrades.some(it => it === 'gradle')) {
     console.log('Upgrading gradle wrapper')
-    const upgradeGradleWrapper = spawnSync(gradleCommand, ['wrapper', '--gradle-version=' + latestGradleRelease]);
+    const upgradeArgs = ['wrapper', '--gradle-version=' + latestGradleRelease]
+    debugLog(`Executing command\n${gradleCommand}${upgradeArgs.join(' ')}\n`)
+    const upgradeGradleWrapper = spawnSync(gradleCommand, upgradeArgs);
 
     if (upgradeGradleWrapper.status !== 0) {
       console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`.bgRed)
@@ -140,13 +166,17 @@ if (gdu.status !== 0) {
     }
   }
 
+  debugLog('Reading Gradle build file\n')
+
   fs.readFile('build.gradle', function (err, buf) {
     let buildFileAsString = buf.toString()
 
     response.upgrades.filter(it => it !== 'gradle').forEach(it => {
+      debugLog(`Replacing version\n${JSON.stringify(it)}\n`)
       buildFileAsString = ReplaceVersion.replace(buildFileAsString, it)
     })
 
+    debugLog('Writing Gradle build file\n')
     fs.writeFile('build.gradle', buildFileAsString, 'utf8', function (err) {
       if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
     });

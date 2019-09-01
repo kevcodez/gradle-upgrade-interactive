@@ -47,6 +47,8 @@ Options:
                     milestone or a release (default)
                     * integration: selects the latest revision of the dependency
                     module (such as SNAPSHOT)                           [string]
+  --debug, -d       Prints debugging information, such as commands executed and
+                    current status.                  [boolean] [Standard: false]
   --no-color        Disables color output
 ```
 
