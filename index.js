@@ -1,4 +1,6 @@
 #! /usr/bin/env node
+var colors = require('colors');
+
 var argv = require('yargs')
   .option('resolution', {
     alias: 'r',
@@ -6,7 +8,11 @@ var argv = require('yargs')
     type: 'string',
     nargs: 1,
     demand: false
-  }).argv
+  })
+  .option('no-color', {
+    describe: 'Disables color output'
+  })
+  .argv
 
 const prompts = require('prompts');
 const fs = require('fs');
@@ -26,6 +32,11 @@ try {
 } catch (err) {
 }
 
+if (!fs.existsSync('build.gradle')) {
+  console.log('build.gradle file was not found.'.red)
+  return
+}
+
 if (!gradleCommand) {
   const gradleVersion = spawnSync('gradle', ['--version'])
   if (gradleVersion.status === 0) {
@@ -34,11 +45,11 @@ if (!gradleCommand) {
 }
 
 if (!gradleCommand) {
-  console.log('Unable to find Gradle Wrapper or Gradle CLI.')
+  console.log('Unable to find Gradle Wrapper or Gradle CLI.'.red)
   return
 }
 
-console.log('Checking for upgrades')
+console.log('Checking for upgrades...')
 
 const gduArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
 const gduResolution = argv.resolution
@@ -49,8 +60,28 @@ if (gduResolution) {
 const gdu = spawnSync(gradleCommand, gduArgs);
 
 if (gdu.status !== 0) {
-  console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`)
-  console.log('https://github.com/ben-manes/gradle-versions-plugin')
+  console.log(`Error executing gradle dependency updates (StatusCode=${gdu.status}), have you installed the gradle versions plugin?`.red)
+  console.log('https://github.com/ben-manes/gradle-versions-plugin\n')
+  console.log(`Plugins block`)
+  console.log(` 
+  plugins {
+    id "com.github.ben-manes.versions" version "0.24.0"
+  }\n`.green)
+
+  console.log('buildscript block')
+
+  console.log(`
+  apply plugin: "com.github.ben-manes.versions"
+
+  buildscript {
+    repositories {
+      jcenter()
+    }
+
+    dependencies {
+      classpath "com.github.ben-manes:gradle-versions-plugin:0.24.0"
+    }
+  }`.green)
   return
 }
 
@@ -112,7 +143,7 @@ if (gdu.status !== 0) {
     })
 
     fs.writeFile('build.gradle', buildFileAsString, 'utf8', function (err) {
-      if (err) return console.log("Unable to write gradle build file.\n" + err);
+      if (err) return console.log(`Unable to write gradle build file.\n${err}`.red);
     });
 
   });
