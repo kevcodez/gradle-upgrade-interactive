@@ -47,6 +47,7 @@ Options:
                     milestone or a release (default)
                     * integration: selects the latest revision of the dependency
                     module (such as SNAPSHOT)                           [string]
+  --no-color        Disables color output
 ```
 
 ## How it works
