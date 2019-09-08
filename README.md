@@ -47,6 +47,12 @@ Options:
                     milestone or a release (default)
                     * integration: selects the latest revision of the dependency
                     module (such as SNAPSHOT)                           [string]
+  --semver, -s      Which semantic version diffs to include
+                    (https://semver.org). Flag can be used multiple times.
+                    Supported options:
+                    * major: Include upgrades with a major version change
+                    * minor: Include upgrades with a minor version change
+                    * patch: Include upgrades with a patch version change[array]
   --debug, -d       Prints debugging information, such as commands executed and
                     current status.                  [boolean] [Standard: false]
   --no-color        Disables color output

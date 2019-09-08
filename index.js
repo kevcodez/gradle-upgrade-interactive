@@ -10,6 +10,14 @@ const argv = require('yargs')
     nargs: 1,
     demand: false
   })
+  .option('semver', {
+    alias: 's',
+    describe: 'Which semantic version diffs to include (https://semver.org). Flag can be used multiple times.\nSupported options:\n* major: Include upgrades with a major version change\n* minor: Include upgrades with a minor version change\n* patch: Include upgrades with a patch version change',
+    type: 'string',
+    array: true,
+    nargs: 1,
+    demand: false
+  })
   .option('debug', {
     alias: 'd',
     describe: 'Prints debugging information, such as commands executed and current status.',
@@ -131,9 +139,9 @@ function debugLog (message) {
     const newVersion = it.available.release || it.available.milestone || it.available.integration
 
     let title = `${it.name} - ${it.version} => ${newVersion}`
+    let semverDiff = null
     try {
-
-      const semverDiff = semver.diff(oldVersion, newVersion)
+      semverDiff = semver.diff(oldVersion, newVersion)
       if (semverDiff === 'patch') {
         title = title.green
       } else if (semverDiff === 'minor') {
@@ -154,10 +162,16 @@ function debugLog (message) {
         name: it.name,
         oldVersion: it.version,
         version: newVersion,
-        projectUrl: it.projectUrl
+        projectUrl: it.projectUrl,
+        semverDiff: semverDiff
       }
     }
   })
+
+  const includeSemverDiffs = argv.semver
+  if (includeSemverDiffs && includeSemverDiffs.length) {
+    choices = choices.filter(it => !it.value.semverDiff || includeSemverDiffs.includes(it.value.semverDiff))
+  }
 
   choices.sort((a, b) => a.title.localeCompare(b.title))
 
@@ -174,8 +188,8 @@ function debugLog (message) {
     })
   }
 
-  if (!outdatedDependencies.length) {
-    console.info('Everything up to date.')
+  if (!choices.length) {
+    console.log('Everything up to date.')
     return
   }
 
