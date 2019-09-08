@@ -41,11 +41,6 @@ try {
 } catch (err) {
 }
 
-if (!fs.existsSync('build.gradle')) {
-  console.log('build.gradle file was not found.'.red)
-  return
-}
-
 if (!gradleCommand) {
   const gradleVersion = spawnSync('gradle', ['--version'])
   if (gradleVersion.status === 0) {
@@ -55,6 +50,19 @@ if (!gradleCommand) {
 
 if (!gradleCommand) {
   console.log('Unable to find Gradle Wrapper or Gradle CLI.'.bgRed)
+  return
+}
+
+let buildFile
+
+if (fs.existsSync('build.gradle')) {
+  buildFile = 'build.gradle'
+} else if (fs.existsSync('build.gradle.kts')) {
+  buildFile = 'build.gradle.kts'
+}
+
+if (!buildFile) {
+  console.log('Unable to find a build.gradle or build.gradle.kts file.'.bgRed)
   return
 }
 
@@ -119,8 +127,20 @@ function debugLog (message) {
 
   let choices = outdatedDependencies.map(it => {
     const newVersion = it.available.release || it.available.milestone || it.available.integration
-    return { description: `Group ${it.group}`, title: `${it.name} - ${it.version} => ${newVersion}`, value: { group: it.group, name: it.name, oldVersion: it.version, version: newVersion } }
+    return {
+      description: it.projectUrl,
+      title: `${it.name} - ${it.version} => ${newVersion}`,
+      value: {
+        group: it.group,
+        name: it.name,
+        oldVersion: it.version,
+        version: newVersion,
+        projectUrl: it.projectUrl
+      }
+    }
   })
+
+  choices.sort((a, b) => a.title.localeCompare(b.title))
 
   debugLog(`Choices\n${JSON.stringify(choices)}\n\n`)
 
@@ -168,7 +188,7 @@ function debugLog (message) {
 
   debugLog('Reading Gradle build file\n')
 
-  fs.readFile('build.gradle', function (err, buf) {
+  fs.readFile(buildFile, function (err, buf) {
     let buildFileAsString = buf.toString()
 
     response.upgrades.filter(it => it !== 'gradle').forEach(it => {
@@ -177,7 +197,7 @@ function debugLog (message) {
     })
 
     debugLog('Writing Gradle build file\n')
-    fs.writeFile('build.gradle', buildFileAsString, 'utf8', function (err) {
+    fs.writeFile(buildFile, buildFileAsString, 'utf8', function (err) {
       if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
     });
 

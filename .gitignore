@@ -2,6 +2,7 @@ node_modules
 yarn-error.log
 .gradle
 build.gradle
+build.gradle.kts
 gradlew
 gradlew.bat
 build

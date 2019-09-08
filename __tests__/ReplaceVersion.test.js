@@ -71,3 +71,13 @@ test('Replace version with version prefix in dependency', () => {
 
     expect(replacedVersion).toBe(`compile group: 'de.kevcodez.pubg', name: 'pubg-api-wrapper', version: '1.0.0'`)
 })
+test('Replace kotlin plugin version', () => {
+    const pluginDependency = {
+        group: 'com.github.ben-manes.versions',
+        name: 'com.github.ben-manes.versions.gradle.plugin',
+        oldVersion: '0.22.0',
+        version: '0.24.0'
+    }
+    const replacedVersion = ReplaceVersion.replace(`id("com.github.ben-manes.versions") version "0.22.0"`, pluginDependency)
+    expect(replacedVersion).toBe(`id("com.github.ben-manes.versions") version "0.24.0"`)
+})

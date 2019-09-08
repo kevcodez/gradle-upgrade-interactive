@@ -30,7 +30,8 @@ module.exports = {
     }
 
     // id 'com.github.ben-manes.versions' version "0.21.0"
-    const regexPluginVersionWithPrefix = new RegExp(`${dependency.group}("|')(\\s+)?version(\\s+)?("|')${oldVersion}("|')`)
+    // id("com.github.ben-manes.versions") version "0.22.0"
+    const regexPluginVersionWithPrefix = new RegExp(`${dependency.group}("|')\\)?(\\s+)?version(\\s+)?("|')${oldVersion}("|')`)
     const regexVersionWithPrefixMatches = regexPluginVersionWithPrefix.exec(modifiedBody)
     if (regexVersionWithPrefixMatches && regexVersionWithPrefixMatches.length) {
       regexVersionWithPrefixMatches.filter(it => it.includes(oldVersion)).forEach(match => {
