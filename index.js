@@ -1,7 +1,8 @@
 #! /usr/bin/env node
-var colors = require('colors');
+const colors = require('colors');
+const semver = require('semver')
 
-var argv = require('yargs')
+const argv = require('yargs')
   .option('resolution', {
     alias: 'r',
     describe: 'Controls the dependency resolution strategy.\nSupported options:\n* release: selects the latest release\n* milestone: select the latest version being either a milestone or a release (default)\n* integration: selects the latest revision of the dependency module (such as SNAPSHOT)',
@@ -126,10 +127,28 @@ function debugLog (message) {
   debugLog(`Outdated dependencies parsed\n${JSON.stringify(outdatedDependencies)}\n\n`)
 
   let choices = outdatedDependencies.map(it => {
+    const oldVersion = it.version
     const newVersion = it.available.release || it.available.milestone || it.available.integration
+
+    let title = `${it.name} - ${it.version} => ${newVersion}`
+    try {
+
+      const semverDiff = semver.diff(oldVersion, newVersion)
+      if (semverDiff === 'patch') {
+        title = title.green
+      } else if (semverDiff === 'minor') {
+        title = title.yellow
+      } else if (semverDiff === 'major') {
+        title = title.red
+      }
+    } catch (err) {
+      debugLog(`Semver for ${title} cannot be diffed.`)
+      debugLog(err)
+    }
+
     return {
       description: it.projectUrl,
-      title: `${it.name} - ${it.version} => ${newVersion}`,
+      title: title,
       value: {
         group: it.group,
         name: it.name,
@@ -164,7 +183,7 @@ function debugLog (message) {
     {
       type: 'multiselect',
       name: 'upgrades',
-      message: 'Pick upgrades',
+      message: 'Pick upgrades\nColor explanation:\n' + 'Major-Version'.red + '\t' + 'Minor-Version'.yellow + '\t' + 'Patch-Version'.green,
       choices: choices
     });
 
