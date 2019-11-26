@@ -99,7 +99,7 @@ if (gdu.status !== 0) {
   console.log(`Either Plugins block`)
   console.log(` 
   plugins {
-    id "com.github.ben-manes.versions" version "0.24.0"
+    id "com.github.ben-manes.versions" version "0.27.0"
   }\n`.green)
 
   console.log('or buildscript block')
@@ -113,7 +113,7 @@ if (gdu.status !== 0) {
     }
 
     dependencies {
-      classpath "com.github.ben-manes:gradle-versions-plugin:0.24.0"
+      classpath "com.github.ben-manes:gradle-versions-plugin:0.27.0"
     }
   }`.green)
   return
