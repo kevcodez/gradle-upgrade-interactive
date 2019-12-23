@@ -30,6 +30,13 @@ const argv = require('yargs')
     nargs: 1,
     demand: false
   })
+  .option('external-file', {
+    alias: 'e',
+    describe: 'Points to a file where dependencies have been declared, e.g. gradle/dependencies.gradle.',
+    type: 'string',
+    nargs: 1,
+    demand: false
+  })
   .argv
 
 const prompts = require('prompts');
@@ -64,7 +71,15 @@ if (!gradleCommand) {
 
 let buildFile
 
-if (fs.existsSync('build.gradle')) {
+const externalFile = argv['external-file']
+
+if (externalFile) {
+  if (!fs.existsSync(externalFile)) {
+    console.log('Unable to find ' + externalFile + ' file.'.bgRed)
+    return
+  }
+  buildFile = externalFile
+} else if (fs.existsSync('build.gradle')) {
   buildFile = 'build.gradle'
 } else if (fs.existsSync('build.gradle.kts')) {
   buildFile = 'build.gradle.kts'
