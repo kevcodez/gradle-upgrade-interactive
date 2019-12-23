@@ -18,6 +18,13 @@ const argv = require('yargs')
     nargs: 1,
     demand: false
   })
+  .option('external-file', {
+    alias: 'e',
+    describe: 'Points to a file where dependencies have been declared, e.g. gradle/dependencies.gradle. Option can be used multiple times.',
+    type: 'array',
+    nargs: 1,
+    demand: false
+  })
   .option('debug', {
     alias: 'd',
     describe: 'Prints debugging information, such as commands executed and current status.',
@@ -27,13 +34,6 @@ const argv = require('yargs')
   })
   .option('no-color', {
     describe: 'Disables color output',
-    nargs: 1,
-    demand: false
-  })
-  .option('external-file', {
-    alias: 'e',
-    describe: 'Points to a file where dependencies have been declared, e.g. gradle/dependencies.gradle.',
-    type: 'string',
     nargs: 1,
     demand: false
   })
@@ -69,30 +69,37 @@ if (!gradleCommand) {
   return
 }
 
-let buildFile
+const externalFiles = argv['external-file']
+const debug = argv.debug
 
-const externalFile = argv['external-file']
+let buildFiles = []
 
-if (externalFile) {
-  if (!fs.existsSync(externalFile)) {
-    console.log('Unable to find ' + externalFile + ' file.'.bgRed)
-    return
-  }
-  buildFile = externalFile
-} else if (fs.existsSync('build.gradle')) {
-  buildFile = 'build.gradle'
-} else if (fs.existsSync('build.gradle.kts')) {
-  buildFile = 'build.gradle.kts'
+if (externalFiles && externalFiles.length) {
+  externalFiles.forEach(externalFile => {
+    if (!fs.existsSync(externalFile)) {
+      console.log('Unable to find ' + externalFile + ' file.'.bgRed)
+      return
+    } else {
+      buildFiles.push(externalFile)
+    }
+  })
+
 }
 
-if (!buildFile) {
-  console.log('Unable to find a build.gradle or build.gradle.kts file.'.bgRed)
+if (fs.existsSync('build.gradle')) {
+  buildFiles.push('build.gradle')
+} else if (fs.existsSync('build.gradle.kts')) {
+  buildFiles.push('build.gradle.kts')
+}
+
+if (!buildFiles.length) {
+  console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed)
   return
 }
 
-console.log('Checking for upgrades...\n')
+debugLog('Build files ' + buildFiles)
 
-const debug = argv.debug
+console.log('Checking for upgrades...\n')
 
 const gduArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
 const gduResolution = argv.resolution
@@ -234,22 +241,24 @@ function debugLog (message) {
     }
   }
 
-  debugLog('Reading Gradle build file\n')
+  buildFiles.forEach(buildFile => {
+    debugLog(`Reading Gradle build file ${buildFile}\n`)
 
-  fs.readFile(buildFile, function (err, buf) {
-    let buildFileAsString = buf.toString()
+    fs.readFile(buildFile, function (err, buf) {
+      let buildFileAsString = buf.toString()
 
-    response.upgrades.filter(it => it !== 'gradle').forEach(it => {
-      debugLog(`Replacing version\n${JSON.stringify(it)}\n`)
-      buildFileAsString = ReplaceVersion.replace(buildFileAsString, it)
-    })
+      response.upgrades.filter(it => it !== 'gradle').forEach(it => {
+        debugLog(`Replacing version\n${JSON.stringify(it)}\n`)
+        buildFileAsString = ReplaceVersion.replace(buildFileAsString, it)
+      })
 
-    debugLog('Writing Gradle build file\n')
-    fs.writeFile(buildFile, buildFileAsString, 'utf8', function (err) {
-      if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
+      debugLog(`Writing Gradle build file ${buildFile}\n`)
+      fs.writeFile(buildFile, buildFileAsString, 'utf8', function (err) {
+        if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
+      });
+
     });
-
-  });
+  })
 
 
 })();
