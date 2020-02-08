@@ -22,7 +22,7 @@
     "yargs": "^15.0.2"
   },
   "devDependencies": {
-    "jest": "^24.9.0"
+    "jest": "^25.1.0"
   },
   "publishConfig": {
     "access": "public"
