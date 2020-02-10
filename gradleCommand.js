@@ -1,7 +1,8 @@
 const {
     spawnSync
 } = require('child_process');
-const {join} = require('path')
+const path = require('path')
+const {existsSync} = require('fs')
 
 function determineGradleCommand(debugLog) {
     let gradleCommand = null
@@ -12,17 +13,18 @@ function determineGradleCommand(debugLog) {
         debugLog('isWindows: ' + isWindows)
         const gradleWrapperFile = isWindows ? 'gradlew.bat' : 'gradlew'
 
-        const gradleWrapperFilePath = join('./', gradleWrapperFile)
-
-        debugLog(`Checking if wrapper file ${gradleWrapperFilePath} exists`)
-        if (existsSync(gradleWrapperFilePath)) {
+        debugLog(`Checking if wrapper file ${gradleWrapperFile} exists`)
+        if (existsSync(gradleWrapperFile)) {
             debugLog('Wrapper file exists')
             gradleCommand = (isWindows ? '' : './') + gradleWrapperFile
             gradleWrapper = true
         } else {
             debugLog('Wrapper file not found')
         }
-    } catch (err) {}
+    } catch (err) {
+        debugLog('Error trying to determine gradle command.')
+        debugLog(err)
+    }
 
     if (!gradleCommand) {
         const gradleVersion = spawnSync('gradle', ['--version'])
