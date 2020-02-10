@@ -7,6 +7,12 @@ const {
   argv
 } = require('./args')
 
+function debugLog(message) {
+  if (argv.debug) {
+    console.log(message.blue)
+  }
+}
+
 const prompts = require('prompts');
 const {
   existsSync,
@@ -37,7 +43,7 @@ const {
 const {
   gradleCommand,
   gradleWrapper
-} = determineGradleCommand()
+} = determineGradleCommand(debugLog)
 
 if (!gradleCommand) {
   console.log('Unable to find Gradle Wrapper or Gradle CLI.'.bgRed)
@@ -271,8 +277,3 @@ function informUserAboutInstallingUpdatePlugin() {
   `.green);
 }
 
-function debugLog(message) {
-  if (argv.debug) {
-    console.log(message.blue)
-  }
-}
