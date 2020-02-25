@@ -251,7 +251,7 @@ function findUpgradeJsonReportFiles() {
 }
 
 function informUserAboutInstallingUpdatePlugin() {
-  const newestVersion = '0.27.0'
+  const newestVersion = '0.28.0'
 
   console.log(`Error executing gradle dependency updates (StatusCode=${gradleDependencyUpdateProcess.status})`.bgRed);
   console.log(gradleDependencyUpdateProcess.stderr.toString().red);
