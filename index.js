@@ -16,9 +16,8 @@ function debugLog(message) {
 const prompts = require('prompts');
 const {
   existsSync,
-  readFile,
   readFileSync,
-  writeFile
+  writeFileSync
 } = require('fs');
 const {
   subDirectories
@@ -63,8 +62,13 @@ async function executeCommandAndWaitForExitCode(command, args) {
 
   const child = spawn(command, args);
   child.stdout.setEncoding('utf8');
-  child.stdout.on('data', function (data) {
+  child.stdout.on('data', (data) => {
     debugLog(data);
+  })
+
+  child.stderr.setEncoding('utf8');
+  child.stderr.on('data', (data) => {
+    console.error(data);
   })
 
   child.on('close', (code) => {
@@ -147,25 +151,50 @@ async function executeCommandAndWaitForExitCode(command, args) {
     }
   }
 
+  const allReplacements = []
+  const buildFileContentMap = new Map()
+
+
   buildFiles.forEach(buildFile => {
     debugLog(`Reading Gradle build file ${buildFile}\n`)
 
-    readFile(buildFile, function (err, buf) {
-      let buildFileAsString = buf.toString()
+    const fileDataBuffer = readFileSync(buildFile)
 
-      response.upgrades.filter(it => it !== 'gradle').forEach(it => {
-        debugLog(`Replacing version\n${JSON.stringify(it)}\n`)
-        buildFileAsString = ReplaceVersion.replace(buildFileAsString, it)
+    let buildFileAsString = fileDataBuffer.toString()
+
+    response.upgrades.filter(it => it !== 'gradle').forEach(dependency => {
+      debugLog(`Replacing version\n${JSON.stringify(dependency)}\n`)
+      const replaceVersionActions = ReplaceVersion.replace(buildFileAsString, dependency)
+
+      replaceVersionActions.forEach(action => {
+        if (!allReplacements.some(it => it.searchValue === action.searchValue && it.replaceValue === action.replaceValue)) {
+          allReplacements.push(action)
+
+          debugLog(`${action.searchValue} => ${action.replaceValue}`)
+        }
       })
+    })
 
-      debugLog(`Writing Gradle build file ${buildFile}\n`)
-      writeFile(buildFile, buildFileAsString, 'utf8', function (err) {
-        if (err) return console.log(`Unable to write gradle build file.\n${err}`.bgRed);
-      });
-
-    });
+    buildFileContentMap.set(buildFile, buildFileAsString)
   })
 
+  buildFileContentMap.forEach((content, buildFile) => {
+
+    let modifiedContent = content
+
+    allReplacements.forEach(replaceAction => {
+      modifiedContent = modifiedContent.replace(replaceAction.searchValue, replaceAction.replaceValue)
+    })
+
+    debugLog(`Writing Gradle build file: ${buildFile}\n`)
+    try {
+      writeFileSync(buildFile, modifiedContent, 'utf8');
+    } catch (err) {
+      console.log(`Unable to write gradle build file.\n${err}`.bgRed);
+      return
+    }
+
+  }, buildFileContentMap)
 
 })();
 
