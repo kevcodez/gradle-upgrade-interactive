@@ -87,7 +87,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
 (async () => {
   console.log('Checking for upgrades...\n')
 
-  const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates', '--status']
+  const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
   const gradleDependencyUpdateResolution = argv.resolution
   if (gradleDependencyUpdateResolution) {
     gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`)
@@ -237,15 +237,19 @@ function buildUpgradeChoicesForUser(outdatedDependencies, dependencyUpdates) {
   }
   choices.sort((a, b) => a.title.localeCompare(b.title));
   debugLog(`Choices\n${JSON.stringify(choices)}\n\n`);
-  let currentGradleRelease = dependencyUpdates.gradle.running.version;
-  let latestGradleRelease = dependencyUpdates.gradle.current.version;
-  if (gradleWrapper && currentGradleRelease !== latestGradleRelease) {
-    choices.unshift({
-      title: `Gradle - ${currentGradleRelease} => ${latestGradleRelease}`,
-      value: 'gradle',
-      description: 'Upgrades the gradle wrapper'
-    });
+
+  if (dependencyUpdates.gradle) {
+    let currentGradleRelease = dependencyUpdates.gradle.running.version;
+    let latestGradleRelease = dependencyUpdates.gradle.current.version;
+    if (gradleWrapper && currentGradleRelease !== latestGradleRelease) {
+      choices.unshift({
+        title: `Gradle - ${currentGradleRelease} => ${latestGradleRelease}`,
+        value: 'gradle',
+        description: 'Upgrades the gradle wrapper'
+      });
+    }
   }
+
   return {
     choices,
     latestGradleRelease
