@@ -50,6 +50,7 @@ if (!gradleCommand) {
 
 const externalFiles = argv['external-file'];
 const buildFiles = getBuildFiles(externalFiles)
+debugLog('Build Files:\n' + buildFiles.join('\n'))
 if (!buildFiles.length) {
   console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed)
   return
@@ -86,7 +87,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
 (async () => {
   console.log('Checking for upgrades...\n')
 
-  const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
+  const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates', '--status']
   const gradleDependencyUpdateResolution = argv.resolution
   if (gradleDependencyUpdateResolution) {
     gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`)

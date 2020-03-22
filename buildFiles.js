@@ -7,6 +7,7 @@ const {
 const {
     join
 } = require('path')
+const fs = require('fs')
 
 function getBuildFiles(externalFiles) {
     let buildFiles = [];
@@ -22,21 +23,31 @@ function getBuildFiles(externalFiles) {
         });
     }
 
-    const directoriesToCheck = ['./']
-    directoriesToCheck.push(...subDirectories('./'))
+    const allRecursiveFiles = getAllBuildFiles('.')
 
-    directoriesToCheck.forEach(directory => {
-        const groovyBuildFile = join(directory, 'build.gradle');
-        const kotlinBuildFile = join(directory, 'build.gradle.kts');
-        if (existsSync(groovyBuildFile)) {
-            buildFiles.push(groovyBuildFile);
-        } else if (existsSync(kotlinBuildFile)) {
-            buildFiles.push(kotlinBuildFile);
-        }
-    })
+    const recursiveBuildFiles = allRecursiveFiles.filter(it => it.endsWith('build.gradle') ||it.endsWith('build.gradle.kts'))
+
+    buildFiles.push(...recursiveBuildFiles)
 
     return buildFiles
 }
+
+const getAllBuildFiles = function(dirPath, arrayOfFiles) {
+    const files = fs.readdirSync(dirPath)
+   
+    arrayOfFiles = arrayOfFiles || []
+   
+    files.forEach(function(file) {
+      if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+        arrayOfFiles = getAllBuildFiles(dirPath + "/" + file, arrayOfFiles)
+      } else {
+        arrayOfFiles.push(join(__dirname, dirPath, "/", file))
+        
+      }
+    })
+   
+    return arrayOfFiles
+  }
 
 module.exports = {
     getBuildFiles
