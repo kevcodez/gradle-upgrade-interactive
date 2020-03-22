@@ -27,9 +27,8 @@ const {
   join
 } = require('path');
 const {
-  spawnSync
+  spawn
 } = require('child_process');
-
 
 const ReplaceVersion = require('./ReplaceVersion')
 
@@ -57,33 +56,53 @@ if (!buildFiles.length) {
   return
 }
 
-console.log('Checking for upgrades...\n')
-
-const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
-const gradleDependencyUpdateResolution = argv.resolution
-if (gradleDependencyUpdateResolution) {
-  gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`)
-}
-
-debugLog(`Executing command\n${gradleCommand} ${gradleDependencyUpdateArgs.join(' ')}\n`)
-
-const gradleDependencyUpdateProcess = spawnSync(gradleCommand, gradleDependencyUpdateArgs);
-
-if (gradleDependencyUpdateProcess.status !== 0) {
-  informUserAboutInstallingUpdatePlugin();
-  return
-}
-
-if (!buildFiles.length) {
-  console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed);
-  return;
-}
-
-debugLog('Build files ' + buildFiles);
-
 exports.debugLog = debugLog;
 
+async function executeCommandAndWaitForExitCode(command, args) {
+  let commandExitCode
+
+  const child = spawn(command, args);
+  child.stdout.setEncoding('utf8');
+  child.stdout.on('data', function (data) {
+    debugLog(data);
+  })
+
+  child.on('close', (code) => {
+    commandExitCode = code
+  })
+
+  while (commandExitCode === undefined) {
+    debugLog('Waiting for command to finish')
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  return commandExitCode
+}
+
 (async () => {
+  console.log('Checking for upgrades...\n')
+
+  const gradleDependencyUpdateArgs = ['dependencyUpdates', '-DoutputFormatter=json', '-DoutputDir=build/dependencyUpdates']
+  const gradleDependencyUpdateResolution = argv.resolution
+  if (gradleDependencyUpdateResolution) {
+    gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`)
+  }
+
+  debugLog(`Executing command\n${gradleCommand} ${gradleDependencyUpdateArgs.join(' ')}\n`)
+
+  let gradleDependencyUpdateProcessExitCode = await executeCommandAndWaitForExitCode(gradleCommand, gradleDependencyUpdateArgs)
+
+  if (gradleDependencyUpdateProcessExitCode !== 0) {
+    informUserAboutInstallingUpdatePlugin(gradleDependencyUpdateProcessExitCode);
+    return
+  }
+
+  if (!buildFiles.length) {
+    console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed);
+    return;
+  }
+
+  debugLog('Build files ' + buildFiles);
 
   debugLog(`Reading JSON report file\n`)
 
@@ -117,10 +136,11 @@ exports.debugLog = debugLog;
   if (response.upgrades.some(it => it === 'gradle')) {
     console.log('Upgrading gradle wrapper')
     const upgradeArgs = ['wrapper', '--gradle-version=' + latestGradleRelease]
-    debugLog(`Executing command\n${gradleCommand}${upgradeArgs.join(' ')}\n`)
-    const upgradeGradleWrapper = spawnSync(gradleCommand, upgradeArgs);
 
-    if (upgradeGradleWrapper.status !== 0) {
+    debugLog(`Executing command\n${gradleCommand}${upgradeArgs.join(' ')}\n`)
+    let upgradeGradleWrapperExitCode = await executeCommandAndWaitForExitCode(gradleCommand, upgradeArgs)
+
+    if (upgradeGradleWrapperExitCode !== 0) {
       console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`.bgRed)
       console.log(upgradeGradleWrapper.stderr.toString().red)
       return
@@ -250,11 +270,10 @@ function findUpgradeJsonReportFiles() {
   return upgradeReportFiles;
 }
 
-function informUserAboutInstallingUpdatePlugin() {
+function informUserAboutInstallingUpdatePlugin(exitCode) {
   const newestVersion = '0.28.0'
 
-  console.log(`Error executing gradle dependency updates (StatusCode=${gradleDependencyUpdateProcess.status})`.bgRed);
-  console.log(gradleDependencyUpdateProcess.stderr.toString().red);
+  console.log(`Error executing gradle dependency updates (StatusCode=${exitCode})`.bgRed);
   console.log(`\nIn case you haven't installed the gradle-versions-plugin (https://github.com/ben-manes/gradle-versions-plugin), put one of the following in your gradle build file:\n`);
   console.log(`Either Plugins block`);
   console.log(` 
@@ -276,4 +295,3 @@ function informUserAboutInstallingUpdatePlugin() {
   apply plugin: "com.github.ben-manes.versions"
   `.green);
 }
-

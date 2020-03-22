@@ -38,8 +38,6 @@ function getBuildFiles(externalFiles) {
     return buildFiles
 }
 
-
-
 module.exports = {
     getBuildFiles
 }

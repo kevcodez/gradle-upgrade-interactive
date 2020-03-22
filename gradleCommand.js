@@ -1,8 +1,9 @@
 const {
     spawnSync
 } = require('child_process');
-const path = require('path')
-const {existsSync} = require('fs')
+const {
+    existsSync
+} = require('fs')
 
 function determineGradleCommand(debugLog) {
     let gradleCommand = null
