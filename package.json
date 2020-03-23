@@ -1,7 +1,7 @@
 {
   "name": "gradle-upgrade-interactive",
   "description": "Interactive CLI to upgrade Gradle dependencies and Gradle wrapper.",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "main": "index.js",
   "license": "MIT",
   "keywords": [
