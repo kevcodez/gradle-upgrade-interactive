@@ -45,15 +45,15 @@ const {
 
 if (!gradleCommand) {
   console.log('Unable to find Gradle Wrapper or Gradle CLI.'.bgRed)
-  return
+  process.exit()
 }
 
 const externalFiles = argv['external-file'];
-const buildFiles = getBuildFiles(externalFiles)
-debugLog('Build Files:\n' + buildFiles.join('\n'))
+const buildFiles = getBuildFiles(externalFiles, debugLog)
+debugLog(`Build Files:\n ${buildFiles.join('\n')}`)
 if (!buildFiles.length) {
   console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed)
-  return
+  process.exit()
 }
 
 exports.debugLog = debugLog;
@@ -73,6 +73,10 @@ async function executeCommandAndWaitForExitCode(command, args) {
   })
 
   child.on('close', (code) => {
+    commandExitCode = code
+  })
+
+  child.on('exit', (code) => {
     commandExitCode = code
   })
 
@@ -99,15 +103,13 @@ async function executeCommandAndWaitForExitCode(command, args) {
 
   if (gradleDependencyUpdateProcessExitCode !== 0) {
     informUserAboutInstallingUpdatePlugin(gradleDependencyUpdateProcessExitCode);
-    return
+    process.exit()
   }
 
   if (!buildFiles.length) {
     console.log('Unable to find build.gradle, build.gradle.kts or external build file.'.bgRed);
-    return;
+    process.exit()
   }
-
-  debugLog('Build files ' + buildFiles);
 
   debugLog(`Reading JSON report file\n`)
 
@@ -123,7 +125,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
 
   if (!choices.length) {
     console.log('Everything up to date.')
-    return
+    process.exit()
   }
 
   const response = await prompts({
@@ -134,11 +136,11 @@ async function executeCommandAndWaitForExitCode(command, args) {
   });
 
   if (!response.upgrades || !response.upgrades.length) {
-    console.log('No upgrades select')
-    return
+    console.log('No upgrades selected')
+    process.exit()
   }
 
-  if (response.upgrades.some(it => it === 'gradle')) {
+  if (latestGradleRelease && response.upgrades.some(it => it === 'gradle')) {
     console.log('Upgrading gradle wrapper')
     const upgradeArgs = ['wrapper', '--gradle-version=' + latestGradleRelease]
 
@@ -148,7 +150,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
     if (upgradeGradleWrapperExitCode !== 0) {
       console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`.bgRed)
       console.log(upgradeGradleWrapper.stderr.toString().red)
-      return
+      process.exit()
     }
   }
 
@@ -192,7 +194,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
       writeFileSync(buildFile, modifiedContent, 'utf8');
     } catch (err) {
       console.log(`Unable to write gradle build file.\n${err}`.bgRed);
-      return
+      process.exit()
     }
 
   }, buildFileContentMap)
@@ -238,9 +240,10 @@ function buildUpgradeChoicesForUser(outdatedDependencies, dependencyUpdates) {
   choices.sort((a, b) => a.title.localeCompare(b.title));
   debugLog(`Choices\n${JSON.stringify(choices)}\n\n`);
 
+  let latestGradleRelease
   if (dependencyUpdates.gradle) {
     let currentGradleRelease = dependencyUpdates.gradle.running.version;
-    let latestGradleRelease = dependencyUpdates.gradle.current.version;
+    latestGradleRelease = dependencyUpdates.gradle.current.version;
     if (gradleWrapper && currentGradleRelease !== latestGradleRelease) {
       choices.unshift({
         title: `Gradle - ${currentGradleRelease} => ${latestGradleRelease}`,

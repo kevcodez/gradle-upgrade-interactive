@@ -8,7 +8,9 @@ const {
 function determineGradleCommand(debugLog) {
     let gradleCommand = null
     let gradleWrapper = false
+
     debugLog('Determining gradle command')
+
     try {
         const isWindows = process.platform === 'win32'
         debugLog('isWindows: ' + isWindows)

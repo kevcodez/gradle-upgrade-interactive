@@ -2,14 +2,11 @@ const {
     existsSync
 } = require('fs');
 const {
-    subDirectories
-} = require('./io')
-const {
     join
 } = require('path')
 const fs = require('fs')
 
-function getBuildFiles(externalFiles) {
+function getBuildFiles(externalFiles, debugLog) {
     let buildFiles = [];
     exports.buildFiles = buildFiles;
     if (externalFiles && externalFiles.length) {
@@ -23,31 +20,36 @@ function getBuildFiles(externalFiles) {
         });
     }
 
-    const allRecursiveFiles = getAllBuildFiles('.')
+    const directoryToSearchIn = __dirname
 
-    const recursiveBuildFiles = allRecursiveFiles.filter(it => it.endsWith('build.gradle') ||it.endsWith('build.gradle.kts'))
+    debugLog(`Recursively looking for build files in directory ${directoryToSearchIn}`)
+
+    const allRecursiveFiles = getAllBuildFiles(directoryToSearchIn)
+
+    const recursiveBuildFiles = allRecursiveFiles.filter(it => it.endsWith('build.gradle') || it.endsWith('build.gradle.kts'))
 
     buildFiles.push(...recursiveBuildFiles)
 
     return buildFiles
 }
 
-const getAllBuildFiles = function(dirPath, arrayOfFiles) {
+const getAllBuildFiles = function (dirPath, arrayOfFiles) {
     const files = fs.readdirSync(dirPath)
-   
+
     arrayOfFiles = arrayOfFiles || []
-   
-    files.forEach(function(file) {
-      if (fs.statSync(dirPath + "/" + file).isDirectory()) {
-        arrayOfFiles = getAllBuildFiles(dirPath + "/" + file, arrayOfFiles)
-      } else {
-        arrayOfFiles.push(join(__dirname, dirPath, "/", file))
-        
-      }
+
+    files.forEach((file) => {
+        const fsStat = fs.statSync(join(dirPath, "/", file))
+
+        if (fsStat.isDirectory()) {
+            arrayOfFiles = getAllBuildFiles(join(dirPath, "/", file), arrayOfFiles)
+        } else {
+            arrayOfFiles.push(join(__dirname, dirPath, "/", file))
+        }
     })
-   
+
     return arrayOfFiles
-  }
+}
 
 module.exports = {
     getBuildFiles
