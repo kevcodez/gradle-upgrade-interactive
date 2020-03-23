@@ -20,7 +20,7 @@ function getBuildFiles(externalFiles, debugLog) {
         });
     }
 
-    const directoryToSearchIn = __dirname
+    const directoryToSearchIn = process.cwd()
 
     debugLog(`Recursively looking for build files in directory ${directoryToSearchIn}`)
 
@@ -34,6 +34,7 @@ function getBuildFiles(externalFiles, debugLog) {
 }
 
 const getAllBuildFiles = function (dirPath, arrayOfFiles) {
+    console.log('checking ' + dirPath)
     const files = fs.readdirSync(dirPath)
 
     arrayOfFiles = arrayOfFiles || []
