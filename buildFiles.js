@@ -2,7 +2,7 @@ const {
     existsSync
 } = require('fs');
 const {
-    join
+    resolve
 } = require('path')
 const fs = require('fs')
 
@@ -34,17 +34,19 @@ function getBuildFiles(externalFiles, debugLog) {
 }
 
 const getAllBuildFiles = function (dirPath, arrayOfFiles) {
-    const files = fs.readdirSync(dirPath)
+    const files = fs.readdirSync(dirPath, {
+        withFileTypes: true
+    })
+    .filter(it => !it.name.startsWith('.') && !it.name.startsWith('node_modules'))
 
     arrayOfFiles = arrayOfFiles || []
 
-    files.forEach((file) => {
-        const fsStat = fs.statSync(join(dirPath, "/", file))
-
-        if (fsStat.isDirectory()) {
-            arrayOfFiles = getAllBuildFiles(join(dirPath, "/", file), arrayOfFiles)
+    files.forEach((dirent) => {
+        const resolvedFile = resolve(dirPath, dirent.name);
+        if (dirent.isDirectory()) {
+            arrayOfFiles = getAllBuildFiles(resolvedFile, arrayOfFiles)
         } else {
-            arrayOfFiles.push(join(dirPath, "/", file))
+            arrayOfFiles.push(resolvedFile)
         }
     })
 
