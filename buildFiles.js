@@ -44,7 +44,7 @@ const getAllBuildFiles = function (dirPath, arrayOfFiles) {
         if (fsStat.isDirectory()) {
             arrayOfFiles = getAllBuildFiles(join(dirPath, "/", file), arrayOfFiles)
         } else {
-            arrayOfFiles.push(join(__dirname, dirPath, "/", file))
+            arrayOfFiles.push(join(dirPath, "/", file))
         }
     })
 
