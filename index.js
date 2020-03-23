@@ -197,7 +197,9 @@ async function executeCommandAndWaitForExitCode(command, args) {
       process.exit()
     }
 
-  }, buildFileContentMap)
+  })
+
+  process.exit()
 
 })();
 

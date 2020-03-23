@@ -34,7 +34,6 @@ function getBuildFiles(externalFiles, debugLog) {
 }
 
 const getAllBuildFiles = function (dirPath, arrayOfFiles) {
-    console.log('checking ' + dirPath)
     const files = fs.readdirSync(dirPath)
 
     arrayOfFiles = arrayOfFiles || []
