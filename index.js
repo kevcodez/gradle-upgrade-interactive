@@ -148,8 +148,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
     let upgradeGradleWrapperExitCode = await executeCommandAndWaitForExitCode(gradleCommand, upgradeArgs)
 
     if (upgradeGradleWrapperExitCode !== 0) {
-      console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapper.status}).`.bgRed)
-      console.log(upgradeGradleWrapper.stderr.toString().red)
+      console.log(`Error upgrading gradle wrapper (StatusCode=${upgradeGradleWrapperExitCode}).`.bgRed)
       process.exit()
     }
   }
