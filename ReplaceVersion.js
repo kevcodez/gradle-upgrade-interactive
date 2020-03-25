@@ -24,6 +24,18 @@ module.exports = {
           })
         })
       }
+
+      // val PUBG_API_WRAPPER by extra("0.8.1")
+      const regexKotlinValExtra = new RegExp(`${variableName}.+\(("|')${oldVersion}("|')\)`)
+      const regexKotlinValMatches = regexKotlinValExtra.exec(body)
+      if (regexKotlinValMatches && regexKotlinValMatches.length) {
+        regexKotlinValMatches.filter(it => it.includes(dependency.oldVersion)).forEach(match => {
+          replaceActions.push({
+            searchValue: match,
+            replaceValue: match.replace(dependency.oldVersion, dependency.version)
+          })
+        })
+      }
     }
 
     // compile 'de.kevcodez:pubg-api-wrapper:1.0.0'

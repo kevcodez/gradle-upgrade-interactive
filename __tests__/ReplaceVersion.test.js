@@ -81,6 +81,28 @@ test('Replace kotlin plugin version', () => {
     const replacedVersion = replaceText(`id("com.github.ben-manes.versions") version "0.22.0"`, pluginDependency)
     expect(replacedVersion).toBe(`id("com.github.ben-manes.versions") version "0.24.0"`)
 })
+test('Replace kotlin version with extra val without braces in reference', () => {
+    const replacedVersion = replaceText(`
+    val PUBG_API_WRAPPER by extra("0.8.1")
+    
+    dependencies {
+        implementation("de.kevcodez:pubg-api-wrapper:$PUBG_API_WRAPPER")
+    }
+    `, dependency)
+
+    expect(replacedVersion).toContain(`val PUBG_API_WRAPPER by extra("1.0.0")`)
+})
+test('Replace kotlin version with extra val with braces in reference', () => {
+    const replacedVersion = replaceText(`
+    val PUBG_API_WRAPPER by extra("0.8.1")
+    
+    dependencies {
+        implementation("de.kevcodez:pubg-api-wrapper:$\{PUBG_API_WRAPPER\}")
+    }
+    `, dependency)
+
+    expect(replacedVersion).toContain(`val PUBG_API_WRAPPER by extra("1.0.0")`)
+})
 
 function replaceText(source, dependency) {
     const replaceVersionActions = ReplaceVersion.replace(source, dependency)
