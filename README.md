@@ -22,7 +22,7 @@ build.gradle
 
 ```groovy
 plugins {
-  id "com.github.ben-manes.versions" version "0.28.0"
+  id "com.github.ben-manes.versions" version "0.33.0"
 }
 ```
 

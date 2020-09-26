@@ -309,7 +309,7 @@ function findUpgradeJsonReportFiles() {
 }
 
 function informUserAboutInstallingUpdatePlugin(exitCode) {
-  const newestVersion = '0.28.0'
+  const newestVersion = '0.33.0'
 
   console.log(`Error executing gradle dependency updates (StatusCode=${exitCode})`.bgRed);
   console.log(`\nIn case you haven't installed the gradle-versions-plugin (https://github.com/ben-manes/gradle-versions-plugin), put one of the following in your gradle build file:\n`);
