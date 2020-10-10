@@ -17,12 +17,13 @@
   },
   "dependencies": {
     "colors": "^1.4.0",
+    "ora": "^5.1.0",
     "prompts": "^2.3.2",
     "semver": "^7.1.1",
-    "yargs": "^15.3.1"
+    "yargs": "^16.0.3"
   },
   "devDependencies": {
-    "jest": "^25.1.0"
+    "jest": "^26.5.2"
   },
   "publishConfig": {
     "access": "public"
