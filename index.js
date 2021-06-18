@@ -301,7 +301,7 @@ function findUpgradeJsonReportFiles() {
 }
 
 function informUserAboutInstallingUpdatePlugin(exitCode) {
-  const newestVersion = "0.36.0";
+  const newestVersion = "0.39.0";
 
   console.log(`Error executing gradle dependency updates (StatusCode=${exitCode})`.bgRed);
   console.log(
