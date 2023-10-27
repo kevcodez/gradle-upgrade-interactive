@@ -1,5 +1,5 @@
-const { spawnSync } = require("child_process");
-const { existsSync } = require("fs");
+import { spawnSync } from "child_process";
+import { existsSync } from "fs";
 
 function determineGradleCommand(debugLog) {
   let gradleCommand = null;
@@ -40,6 +40,4 @@ function determineGradleCommand(debugLog) {
   };
 }
 
-module.exports = {
-  determineGradleCommand,
-};
+export { determineGradleCommand };

@@ -1,10 +1,11 @@
 #! /usr/bin/env node
 
-const colors = require("colors");
-const semver = require("semver");
-const ora = require("ora");
+"use strict";
 
-const { argv } = require("./args");
+import semver from "semver";
+import ora from "ora";
+
+import { argv } from "./args.js";
 
 function debugLog(message) {
   if (argv.debug) {
@@ -12,17 +13,16 @@ function debugLog(message) {
   }
 }
 
-const prompts = require("prompts");
-const { existsSync, readFileSync, writeFileSync } = require("fs");
-const { subDirectories } = require("./io");
-const { join } = require("path");
-const { spawn } = require("child_process");
-const { version } = require("./package.json");
+import prompts from "prompts";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import { spawn } from "child_process";
+import { subDirectories } from "./io.js";
 
-const ReplaceVersion = require("./ReplaceVersion");
+import ReplaceVersion from "./ReplaceVersion.js";
 
-const { determineGradleCommand } = require("./gradleCommand");
-const { getBuildFiles } = require("./buildFiles");
+import { determineGradleCommand } from "./gradleCommand.js";
+import { getBuildFiles } from "./buildFiles.js";
 
 const { gradleCommand, gradleWrapper } = determineGradleCommand(debugLog);
 
@@ -33,7 +33,7 @@ if (!gradleCommand) {
 
 const externalFiles = argv["external-file"];
 const pathOfReport = argv["path-of-report"];
-const outputDir = pathOfReport || "build/dependencyUpdates"
+const outputDir = pathOfReport || "build/dependencyUpdates";
 const buildFiles = getBuildFiles(externalFiles, debugLog);
 debugLog(`Build Files:\n ${buildFiles.join("\n")}`);
 if (!buildFiles.length) {
@@ -74,7 +74,7 @@ async function executeCommandAndWaitForExitCode(command, args) {
 }
 
 (async () => {
-  console.log(`gradle-upgrade-interactive v${version}
+  console.log(`gradle-upgrade-interactive
 ${"info".blue} Color legend :
 "${"<red>".red}"    : Major Update backward-incompatible updates
 "${"<yellow>".yellow}" : Minor Update backward-compatible features
@@ -85,7 +85,7 @@ ${"info".blue} Color legend :
 
   //   info Color legend :
 
-  const gradleDependencyUpdateArgs = ["dependencyUpdates", "-DoutputFormatter=json", "-DoutputDir=${outputDir}"];
+  const gradleDependencyUpdateArgs = ["dependencyUpdates", "-DoutputFormatter=json", `-DoutputDir=${outputDir}`];
   const gradleDependencyUpdateResolution = argv.resolution;
   if (gradleDependencyUpdateResolution) {
     gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`);
@@ -303,7 +303,7 @@ function findUpgradeJsonReportFiles() {
 }
 
 function informUserAboutInstallingUpdatePlugin(exitCode) {
-  const newestVersion = "0.39.0";
+  const newestVersion = "0.49.0";
 
   console.log(`Error executing gradle dependency updates (StatusCode=${exitCode})`.bgRed);
   console.log(

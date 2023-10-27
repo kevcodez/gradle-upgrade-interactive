@@ -1,6 +1,6 @@
-const { existsSync } = require("fs");
-const { resolve } = require("path");
-const fs = require("fs");
+import { existsSync } from "fs";
+import { resolve } from "path";
+import fs from "fs";
 
 function getBuildFiles(externalFiles, debugLog) {
   let buildFiles = [];
@@ -50,6 +50,4 @@ const getAllBuildFiles = function (dirPath, arrayOfFiles) {
   return arrayOfFiles;
 };
 
-module.exports = {
-  getBuildFiles,
-};
+export { getBuildFiles };

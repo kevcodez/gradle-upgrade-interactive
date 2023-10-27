@@ -11,7 +11,7 @@ Easily upgrade your dependencies and Gradle itself by simply selecting what you 
 
 ## Requirements
 
-- NodeJS 10+
+- NodeJS 18+
 - [gradle-versions-plugin](https://github.com/ben-manes/gradle-versions-plugin)
 
 ## Installation
@@ -22,7 +22,7 @@ build.gradle
 
 ```groovy
 plugins {
-  id "com.github.ben-manes.versions" version "0.39.0"
+  id "com.github.ben-manes.versions" version "0.49.0"
 }
 ```
 

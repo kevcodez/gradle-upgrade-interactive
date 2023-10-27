@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   replace: function replaceVersion(body, dependency) {
     const oldVersion = dependency.oldVersion;
     const newVersion = dependency.version;

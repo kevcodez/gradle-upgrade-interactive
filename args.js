@@ -1,4 +1,7 @@
-const argv = require("yargs")
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
+
+const argv = yargs(hideBin(process.argv))
   .option("resolution", {
     alias: "r",
     describe:
@@ -43,6 +46,4 @@ const argv = require("yargs")
     demand: false,
   }).argv;
 
-module.exports = {
-  argv,
-};
+export { argv };
