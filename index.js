@@ -32,6 +32,8 @@ if (!gradleCommand) {
 }
 
 const externalFiles = argv["external-file"];
+const pathOfReport = argv["path-of-report"];
+const outputDir = pathOfReport || "build/dependencyUpdates"
 const buildFiles = getBuildFiles(externalFiles, debugLog);
 debugLog(`Build Files:\n ${buildFiles.join("\n")}`);
 if (!buildFiles.length) {
@@ -83,7 +85,7 @@ ${"info".blue} Color legend :
 
   //   info Color legend :
 
-  const gradleDependencyUpdateArgs = ["dependencyUpdates", "-DoutputFormatter=json", "-DoutputDir=build/dependencyUpdates"];
+  const gradleDependencyUpdateArgs = ["dependencyUpdates", "-DoutputFormatter=json", "-DoutputDir=${outputDir}"];
   const gradleDependencyUpdateResolution = argv.resolution;
   if (gradleDependencyUpdateResolution) {
     gradleDependencyUpdateArgs.push(`-Drevision=${gradleDependencyUpdateResolution}`);
@@ -286,7 +288,7 @@ function findOutdatedDependencies() {
 }
 
 function findUpgradeJsonReportFiles() {
-  const reportJsonPath = "build/dependencyUpdates/report.json";
+  const reportJsonPath = "${outputDir}/report.json";
   const upgradeReportFiles = [];
   if (existsSync(reportJsonPath)) {
     upgradeReportFiles.push(reportJsonPath);
