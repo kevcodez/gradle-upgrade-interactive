@@ -23,6 +23,13 @@ const argv = require("yargs")
     nargs: 1,
     demand: false,
   })
+  .option("path-of-report", {
+    alias: "p",
+    describe: "Points to the path, where the report.json is defined",
+    type: "array",
+    nargs: 1,
+    demand: false,
+  })
   .option("debug", {
     alias: "d",
     describe: "Prints debugging information, such as commands executed and current status.",

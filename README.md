@@ -59,6 +59,8 @@ Options:
                        multiple times.                                   [array]
   --debug, -d          Prints debugging information, such as commands executed
                        and current status.           [boolean] [Standard: false]
+  --path-to-report, -p Points to the path where the report.json is saved
+                       standard is at the moment build/dependencyUpdates                   
   --no-color           Disables color output
 ```
 
