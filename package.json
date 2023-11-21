@@ -17,6 +17,7 @@
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "ora": "^7.0.1",
     "prompts": "^2.4.0",
     "semver": "^7.5.4",
