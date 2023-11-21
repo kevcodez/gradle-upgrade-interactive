@@ -2,6 +2,8 @@
 
 "use strict";
 
+// Needed for coloring terminal output
+import colors from 'colors'
 import semver from "semver";
 import ora from "ora";
 
@@ -40,8 +42,6 @@ if (!buildFiles.length) {
   console.log("Unable to find build.gradle, build.gradle.kts or external build file.".bgRed);
   process.exit();
 }
-
-exports.debugLog = debugLog;
 
 async function executeCommandAndWaitForExitCode(command, args) {
   let commandExitCode;

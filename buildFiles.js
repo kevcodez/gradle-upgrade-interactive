@@ -4,7 +4,6 @@ import fs from "fs";
 
 function getBuildFiles(externalFiles, debugLog) {
   let buildFiles = [];
-  exports.buildFiles = buildFiles;
   if (externalFiles && externalFiles.length) {
     externalFiles.forEach((externalFile) => {
       if (!existsSync(externalFile)) {
