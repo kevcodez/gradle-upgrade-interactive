@@ -288,7 +288,7 @@ function findOutdatedDependencies() {
 }
 
 function findUpgradeJsonReportFiles() {
-  const reportJsonPath = "${outputDir}/report.json";
+  const reportJsonPath = `${outputDir}/report.json`;
   const upgradeReportFiles = [];
   if (existsSync(reportJsonPath)) {
     upgradeReportFiles.push(reportJsonPath);
